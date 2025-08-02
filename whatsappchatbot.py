@@ -210,46 +210,82 @@ def get_nearby(lat,lng,cat):
     return out or "No places found nearby."
 
 # audio transcription + Tanglish translator
+# def transcribe_audio(media_id):
+#     try:
+#         print("📥 Getting media URL for:", media_id)
+#         murl = f"https://graph.facebook.com/v18.0/{media_id}"
+#         info = requests.get(murl, params={"access_token": WHATSAPP_TOKEN}).json()
+#         print("🧾 Media Info:", info)
+
+#         url = info.get("url")
+#         if not url:
+#             print("❌ No URL found in media info")
+#             return ""
+
+#         # Get the audio data
+#         headers = {"Authorization": f"Bearer {WHATSAPP_TOKEN}"}
+#         res = requests.get(url, headers=headers, stream=True)
+
+#         if res.status_code != 200:
+#             print(f"❌ Failed to download media: {res.status_code}")
+#             return ""
+
+#         fn = "tmp.ogg"
+#         with open(fn, "wb") as f:
+#             for chunk in res.iter_content(1024):
+#                 f.write(chunk)
+
+#         # Verify file isn't empty or too short
+#         if os.path.getsize(fn) < 1000:
+#             print("❌ Audio file is too small or corrupted.")
+#             return ""
+
+#         print("📂 Audio file saved. Transcribing...")
+#         with open(fn, "rb") as f:
+#             result = openai.Audio.transcribe("whisper-1", f)
+
+#         print("📝 Transcription result:", result)
+#         return result["text"]
+
+#     except Exception as e:
+#         print("❌ Error in transcribe_audio:", e)
+#         return ""
+
 def transcribe_audio(media_id):
+    print(f"📥 Getting media URL for: {media_id}")
+    url = f"https://graph.facebook.com/v18.0/{media_id}"
+    params = {"access_token": WHATSAPP_TOKEN}
+    res = requests.get(url, params=params)
+    media_url = res.json().get("url")
+    
+    if not media_url:
+        print("❌ Media URL not found.")
+        return None
+
+    # Get the actual media bytes
+    headers = {"Authorization": f"Bearer {WHATSAPP_TOKEN}"}
+    audio_bytes = requests.get(media_url, headers=headers).content
+
+    # Save to file
+    with open("tmp.ogg", "wb") as f:
+        f.write(audio_bytes)
+
+    print("📂 Audio file saved. Transcribing...")
+
+    # Use OpenAI Whisper API (make sure openai is initialized correctly)
     try:
-        print("📥 Getting media URL for:", media_id)
-        murl = f"https://graph.facebook.com/v18.0/{media_id}"
-        info = requests.get(murl, params={"access_token": WHATSAPP_TOKEN}).json()
-        print("🧾 Media Info:", info)
-
-        url = info.get("url")
-        if not url:
-            print("❌ No URL found in media info")
-            return ""
-
-        # Get the audio data
-        headers = {"Authorization": f"Bearer {WHATSAPP_TOKEN}"}
-        res = requests.get(url, headers=headers, stream=True)
-
-        if res.status_code != 200:
-            print(f"❌ Failed to download media: {res.status_code}")
-            return ""
-
-        fn = "tmp.ogg"
-        with open(fn, "wb") as f:
-            for chunk in res.iter_content(1024):
-                f.write(chunk)
-
-        # Verify file isn't empty or too short
-        if os.path.getsize(fn) < 1000:
-            print("❌ Audio file is too small or corrupted.")
-            return ""
-
-        print("📂 Audio file saved. Transcribing...")
-        with open(fn, "rb") as f:
-            result = openai.Audio.transcribe("whisper-1", f)
-
-        print("📝 Transcription result:", result)
-        return result["text"]
-
+        with open("tmp.ogg", "rb") as f:
+            transcript = client.audio.transcriptions.create(
+                model="whisper-1",
+                file=f,
+                response_format="text"
+            )
+        print("📝 Transcription result:", transcript)
+        return transcript.strip()
     except Exception as e:
-        print("❌ Error in transcribe_audio:", e)
-        return ""
+        print("❌ Transcription error:", e)
+        return None
+
         
         
 
@@ -291,48 +327,48 @@ def to_tanglish(txt):
 
 #     return out
 
-# def generate_tts(text, mp3_path="resp.mp3", ogg_path="resp.ogg"):
-#     # 1. Save TTS as MP3
-#     tts = gTTS(text=text, lang="en")
-#     tts.save(mp3_path)
-
-#     # 2. Convert to OGG using ffmpeg
-#     try:
-#         subprocess.run(["ffmpeg", "-y", "-i", mp3_path, "-c:a", "libopus", ogg_path], check=True)
-#     except subprocess.CalledProcessError as e:
-#         print("❌ FFmpeg conversion failed:", e)
-#         return None
-    
-#     return ogg_path
-
 def generate_tts(text, mp3_path="resp.mp3", ogg_path="resp.ogg"):
-    # Step 1: Generate MP3 using gTTS
-    try:
-        tts = gTTS(text=text, lang="en")
-        tts.save(mp3_path)
-    except Exception as e:
-        print("❌ gTTS failed:", e)
-        return None
+    # 1. Save TTS as MP3
+    tts = gTTS(text=text, lang="en")
+    tts.save(mp3_path)
 
-    # Step 2: Use FFmpeg to convert MP3 → OGG (Opus)
+    # 2. Convert to OGG using ffmpeg
     try:
-        subprocess.run([
-            "ffmpeg", "-y", "-i", mp3_path,
-            "-c:a", "libopus",  # Opus codec is required
-            "-b:a", "64k",       # Audio bitrate
-            ogg_path
-        ], check=True)
+        subprocess.run(["ffmpeg", "-y", "-i", mp3_path, "-c:a", "libopus", ogg_path], check=True)
     except subprocess.CalledProcessError as e:
         print("❌ FFmpeg conversion failed:", e)
         return None
-
-    # Check if OGG file was successfully created
-    if not os.path.exists(ogg_path) or os.path.getsize(ogg_path) == 0:
-        print("❌ Output OGG file is missing or empty.")
-        return None
-
-    print("✅ Audio generated successfully.")
+    
     return ogg_path
+
+# def generate_tts(text, mp3_path="resp.mp3", ogg_path="resp.ogg"):
+#     # Step 1: Generate MP3 using gTTS
+#     try:
+#         tts = gTTS(text=text, lang="en")
+#         tts.save(mp3_path)
+#     except Exception as e:
+#         print("❌ gTTS failed:", e)
+#         return None
+
+#     # Step 2: Use FFmpeg to convert MP3 → OGG (Opus)
+#     try:
+#         subprocess.run([
+#             "ffmpeg", "-y", "-i", mp3_path,
+#             "-c:a", "libopus",  # Opus codec is required
+#             "-b:a", "64k",       # Audio bitrate
+#             ogg_path
+#         ], check=True)
+#     except subprocess.CalledProcessError as e:
+#         print("❌ FFmpeg conversion failed:", e)
+#         return None
+
+#     # Check if OGG file was successfully created
+#     if not os.path.exists(ogg_path) or os.path.getsize(ogg_path) == 0:
+#         print("❌ Output OGG file is missing or empty.")
+#         return None
+
+#     print("✅ Audio generated successfully.")
+#     return ogg_path
 
     
 
@@ -523,6 +559,7 @@ def run_app():
     app.run(port=5000)
 
 threading.Thread(target=run_app,daemon=True).start()
+
 
 
 
