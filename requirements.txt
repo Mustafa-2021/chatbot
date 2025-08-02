@@ -1,9 +1,9 @@
-Flask
-openai
+flask
+gunicorn
 requests
-python-dotenv
-gtts
+openai
+gTTS
+gspread
+oauth2client
 pydub
 ffmpeg-python
-oauth2client
-gspread
