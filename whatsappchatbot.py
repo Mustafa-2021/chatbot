@@ -19,18 +19,20 @@ import uuid
 nest_asyncio.apply()
 
 # load config
-# —– Credentials (hard-coded) —–
-WHATSAPP_TOKEN      = "EAAKE7ig6UCgBO77z83kqjhghkx5485QnhyiMo96P4ZBcg36AfmiQvZC5f6kyk6GZBItQHoXQK7yQvmZC7plM1h9DbvmCvUzXN0PFopPOEApi3uUFO4FLFZAkrtL9tgysbtDZAM2Kx5uVfqtSSNdHdGzOsbWuFLAtUvlS6avuGbugIqlWtFZCh96YCWqpXcD"
-WHATSAPP_PHONE_ID   = "679431781920863"
-VERIFY_TOKEN        = "new_verify_token"
+# —– Credentials —–
+VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+WHATSAPP_TOKEN = os.getenv("WHATSAPP_TOKEN")
+WHATSAPP_PHONE_ID = os.getenv("WHATSAPP_PHONE_ID")
+PLACES_API_KEY = os.getenv("PLACES_API_KEY")
 
 
 GOOGLE_CRED_JSON = os.getenv("GOOGLE_CRED_JSON")
 creds_dict = json.loads(GOOGLE_CRED_JSON)
 
-CONTACT_SHEET_ID    = "1ZVTMO4cW2YZ3DaWZPv5HrTyiqMODBGFRk6NwODS-E0o"
-ACCOM_SHEET_ID      = "1ZVTMO4cW2YZ3DaWZPv5HrTyiqMODBGFRk6NwODS-E0o"
-LOG_SHEET_ID        = "1AcNgJGbcW4oTQb7gvCKCZGicpTln9SJ768hvkv6HVfA"
+CONTACT_SHEET_ID    = os.getenv("CONTACT_SHEET_ID")
+ACCOM_SHEET_ID      = os.getenv("ACCOM_SHEET_ID")
+LOG_SHEET_ID        = os.getenv("LOG_SHEET_ID")
 
 
 
@@ -490,6 +492,7 @@ def run_app():
     app.run(port=5000)
 
 threading.Thread(target=run_app,daemon=True).start()
+
 
 
 
