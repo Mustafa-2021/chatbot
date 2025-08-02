@@ -20,7 +20,6 @@ nest_asyncio.apply()
 
 # load config
 # —– Credentials —–
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 WHATSAPP_TOKEN = os.getenv("WHATSAPP_TOKEN")
@@ -53,7 +52,7 @@ print("GOOGLE_CRED_PATH=", os.getenv("GOOGLE_CRED_PATH"))
 
 
 # initialize OpenAI
-openai.api_key = OPENAI_API_KEY
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # initialize Google Sheets
 scope = ["https://spreadsheets.google.com/feeds","https://www.googleapis.com/auth/drive"]
@@ -495,6 +494,7 @@ def run_app():
     app.run(port=5000)
 
 threading.Thread(target=run_app,daemon=True).start()
+
 
 
 
