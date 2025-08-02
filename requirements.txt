@@ -1,0 +1,9 @@
+Flask
+openai
+requests
+python-dotenv
+gtts
+pydub
+ffmpeg-python
+oauth2client
+gspread
