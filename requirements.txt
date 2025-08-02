@@ -10,6 +10,3 @@ pydub
 ffmpeg
 nest_asyncio
 uuid
-mimetypes
-json
-collections
