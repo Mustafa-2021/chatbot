@@ -49,7 +49,10 @@ import os
 print("GOOGLE_CRED_PATH=", os.getenv("GOOGLE_CRED_PATH"))
 
 
+
+
 # initialize OpenAI
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 openai.api_key = OPENAI_API_KEY
 
 # initialize Google Sheets
@@ -492,6 +495,7 @@ def run_app():
     app.run(port=5000)
 
 threading.Thread(target=run_app,daemon=True).start()
+
 
 
 
