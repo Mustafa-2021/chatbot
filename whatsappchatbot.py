@@ -291,18 +291,47 @@ def to_tanglish(txt):
 
 #     return out
 
-def generate_tts(text, mp3_path="resp.mp3", ogg_path="resp.ogg"):
-    # 1. Save TTS as MP3
-    tts = gTTS(text=text, lang="en")
-    tts.save(mp3_path)
+# def generate_tts(text, mp3_path="resp.mp3", ogg_path="resp.ogg"):
+#     # 1. Save TTS as MP3
+#     tts = gTTS(text=text, lang="en")
+#     tts.save(mp3_path)
 
-    # 2. Convert to OGG using ffmpeg
+#     # 2. Convert to OGG using ffmpeg
+#     try:
+#         subprocess.run(["ffmpeg", "-y", "-i", mp3_path, "-c:a", "libopus", ogg_path], check=True)
+#     except subprocess.CalledProcessError as e:
+#         print("❌ FFmpeg conversion failed:", e)
+#         return None
+    
+#     return ogg_path
+
+def generate_tts(text, mp3_path="resp.mp3", ogg_path="resp.ogg"):
+    # Step 1: Generate MP3 using gTTS
     try:
-        subprocess.run(["ffmpeg", "-y", "-i", mp3_path, "-c:a", "libopus", ogg_path], check=True)
+        tts = gTTS(text=text, lang="en")
+        tts.save(mp3_path)
+    except Exception as e:
+        print("❌ gTTS failed:", e)
+        return None
+
+    # Step 2: Use FFmpeg to convert MP3 → OGG (Opus)
+    try:
+        subprocess.run([
+            "ffmpeg", "-y", "-i", mp3_path,
+            "-c:a", "libopus",  # Opus codec is required
+            "-b:a", "64k",       # Audio bitrate
+            ogg_path
+        ], check=True)
     except subprocess.CalledProcessError as e:
         print("❌ FFmpeg conversion failed:", e)
         return None
-    
+
+    # Check if OGG file was successfully created
+    if not os.path.exists(ogg_path) or os.path.getsize(ogg_path) == 0:
+        print("❌ Output OGG file is missing or empty.")
+        return None
+
+    print("✅ Audio generated successfully.")
     return ogg_path
 
     
@@ -494,6 +523,7 @@ def run_app():
     app.run(port=5000)
 
 threading.Thread(target=run_app,daemon=True).start()
+
 
 
 
