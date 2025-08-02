@@ -6,7 +6,7 @@ import os
 import re
 import threading
 import requests
-import openai
+from openai import OpenAI
 import gspread
 from flask import Flask, request
 from oauth2client.service_account import ServiceAccountCredentials
@@ -52,7 +52,7 @@ print("GOOGLE_CRED_PATH=", os.getenv("GOOGLE_CRED_PATH"))
 
 
 # initialize OpenAI
-client = openai(api_key=os.getenv("OPENAI_API_KEY"))
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 openai.api_key = OPENAI_API_KEY
 
 # initialize Google Sheets
@@ -495,6 +495,7 @@ def run_app():
     app.run(port=5000)
 
 threading.Thread(target=run_app,daemon=True).start()
+
 
 
 
