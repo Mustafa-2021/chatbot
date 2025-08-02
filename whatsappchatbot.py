@@ -273,7 +273,7 @@ def to_tanglish(txt):
         {"role":"system","content":sys},
         {"role":"user","content":txt}
     ]
-    r = openai.ChatCompletion.create(model="gpt-4o-mini", messages=chat)
+    r = client.chat.completions.create(model="gpt-4o-mini", messages=chat)
     return r.choices[0].message.content.strip()
 
 
@@ -454,7 +454,7 @@ and keep responses concise and friendly.
     )
 
     
-    resp = openai.ChatCompletion.create(
+    resp = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=messages,
         temperature=0.7,
@@ -492,6 +492,7 @@ def run_app():
     app.run(port=5000)
 
 threading.Thread(target=run_app,daemon=True).start()
+
 
 
 
