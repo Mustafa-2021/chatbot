@@ -12,7 +12,6 @@ from oauth2client.service_account import ServiceAccountCredentials
 from gtts import gTTS
 from dotenv import load_dotenv
 import nest_asyncio
-from pydub import AudioSegment
 import uuid
 
 # allow Flask in Jupyter
@@ -274,16 +273,31 @@ def to_tanglish(txt):
 
 
 #updated tts code
-def generate_tts(text, out="resp.ogg"):
-    # Step 1: Generate MP3 using gTTS
+# def generate_tts(text, out="resp.ogg"):
+#     # Step 1: Generate MP3 using gTTS
+#     tts = gTTS(text=text, lang="en")
+#     tts.save("temp.mp3")
+
+#     # Step 2: Convert MP3 to OGG (Opus) format
+#     mp3_audio = AudioSegment.from_mp3("temp.mp3")
+#     mp3_audio.export(out, format="ogg", codec="libopus")
+
+#     return out
+
+def generate_tts(text, mp3_path="resp.mp3", ogg_path="resp.ogg"):
+    # 1. Save TTS as MP3
     tts = gTTS(text=text, lang="en")
-    tts.save("temp.mp3")
+    tts.save(mp3_path)
 
-    # Step 2: Convert MP3 to OGG (Opus) format
-    mp3_audio = AudioSegment.from_mp3("temp.mp3")
-    mp3_audio.export(out, format="ogg", codec="libopus")
+    # 2. Convert to OGG using ffmpeg
+    try:
+        subprocess.run(["ffmpeg", "-y", "-i", mp3_path, "-c:a", "libopus", ogg_path], check=True)
+    except subprocess.CalledProcessError as e:
+        print("❌ FFmpeg conversion failed:", e)
+        return None
+    
+    return ogg_path
 
-    return out
     
 
 # Flask webhook
@@ -473,4 +487,5 @@ def run_app():
     app.run(port=5000)
 
 threading.Thread(target=run_app,daemon=True).start()
+
 
