@@ -1,4 +1,5 @@
 import json
+import ast
 import mimetypes
 from collections import deque
 import os
@@ -22,9 +23,11 @@ nest_asyncio.apply()
 WHATSAPP_TOKEN      = "EAAKE7ig6UCgBO77z83kqjhghkx5485QnhyiMo96P4ZBcg36AfmiQvZC5f6kyk6GZBItQHoXQK7yQvmZC7plM1h9DbvmCvUzXN0PFopPOEApi3uUFO4FLFZAkrtL9tgysbtDZAM2Kx5uVfqtSSNdHdGzOsbWuFLAtUvlS6avuGbugIqlWtFZCh96YCWqpXcD"
 WHATSAPP_PHONE_ID   = "679431781920863"
 VERIFY_TOKEN        = "new_verify_token"
-os.getenv("GOOGLE_CRED_PATH")
-creds_dict = json.loads(GOOGLE_CRED_PATH)
-creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+
+
+GOOGLE_CRED_JSON = os.getenv("GOOGLE_CRED_JSON")
+creds_dict = json.loads(GOOGLE_CRED_JSON)
+
 CONTACT_SHEET_ID    = "1ZVTMO4cW2YZ3DaWZPv5HrTyiqMODBGFRk6NwODS-E0o"
 ACCOM_SHEET_ID      = "1ZVTMO4cW2YZ3DaWZPv5HrTyiqMODBGFRk6NwODS-E0o"
 LOG_SHEET_ID        = "1AcNgJGbcW4oTQb7gvCKCZGicpTln9SJ768hvkv6HVfA"
@@ -49,7 +52,7 @@ openai.api_key = OPENAI_API_KEY
 
 # initialize Google Sheets
 scope = ["https://spreadsheets.google.com/feeds","https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name(GOOGLE_CRED_PATH, scope)
+creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
 gc = gspread.authorize(creds)
 contact_sheet = gc.open_by_key(CONTACT_SHEET_ID).sheet1
 # accommodation uses a second sheet within same file
@@ -487,5 +490,6 @@ def run_app():
     app.run(port=5000)
 
 threading.Thread(target=run_app,daemon=True).start()
+
 
 
