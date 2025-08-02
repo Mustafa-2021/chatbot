@@ -30,8 +30,7 @@ CONTACT_SHEET_ID    = "1ZVTMO4cW2YZ3DaWZPv5HrTyiqMODBGFRk6NwODS-E0o"
 ACCOM_SHEET_ID      = "1ZVTMO4cW2YZ3DaWZPv5HrTyiqMODBGFRk6NwODS-E0o"
 LOG_SHEET_ID        = "1AcNgJGbcW4oTQb7gvCKCZGicpTln9SJ768hvkv6HVfA"
 
-# in one cell
-%pip install python-dotenv
+
 
 # in the next cell, before reading any env vars:
 from dotenv import load_dotenv
@@ -273,10 +272,6 @@ def to_tanglish(txt):
     r = openai.ChatCompletion.create(model="gpt-4o-mini", messages=chat)
     return r.choices[0].message.content.strip()
 
-# def generate_tts(text, out="resp.mp3"):
-#     tts = gTTS(text=text, lang="en")
-#     tts.save(out)
-#     return out
 
 #updated tts code
 def generate_tts(text, out="resp.ogg"):
@@ -362,8 +357,6 @@ def handle(user, msg, userName):
 
         # Step 4: Send audio back to user
         send_audio(user, path)  
-
-
 
             
     elif mtype == "location":
@@ -480,3 +473,4 @@ def run_app():
     app.run(port=5000)
 
 threading.Thread(target=run_app,daemon=True).start()
+
