@@ -10,3 +10,4 @@ pydub
 ffmpeg
 nest_asyncio
 uuid
+pyaudioop
