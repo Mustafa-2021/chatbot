@@ -496,7 +496,7 @@ in a conversational, helpful way. You know about:
 - If the user sends an 8-digit ITS number (e.g. 40450256), you don’t need to reply directly. Just wait for the backend to respond with the person's accommodation and screening details.
 - Handling small talk politely.
 
-Always personalize your replies by including the user's name ({name}) when appropriate,
+Always personalize your replies by including the user's name ({name}) when it is appropriate,
 and keep responses concise and friendly.
 """
 
@@ -560,6 +560,7 @@ def run_app():
     app.run(port=5000)
 
 threading.Thread(target=run_app,daemon=True).start()
+
 
 
 
