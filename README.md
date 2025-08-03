@@ -43,17 +43,13 @@ pip install -r requirements.txt
 3. **Configure environment variables**
 Create a .env file based on .env.example and fill in:
 
-ini
-Copy
-Edit
 OPENAI_API_KEY=your_openai_key
 WHATSAPP_API_KEY=your_whatsapp_key
 WHATSAPP_NUMBER_ID=your_number_id
-WEBHOOK_URL=https://your-production-url.com/
-webhook
+WEBHOOK_URL=https://your-production-url.com/webhook
 LOCAL_TUNNEL_URL=https://your-ngrok-url
 
-4. **Run the server**
+5. **Run the server**
 
 bash
 Copy
