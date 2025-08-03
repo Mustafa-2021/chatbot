@@ -80,11 +80,6 @@ def record_message(user_id: str, role: str, content: str):
 # in-memory session store
 sessions = {}
 
-EMERGENCY = """🚨 Emergency Response 🚨
-Please call on-ground helpdesk:
-Moiz Calcuttawala – +918686131482
-Abdul Tambawala – +918247778793
-"""
 REQUEST_LOC = "Please share your live location (📎 icon → 📍 Location → Share here)."
 SCHEDULE = """📝Schedule for Today📝
 9:30 AM – Reporting to Masjid/Markaz
@@ -292,22 +287,23 @@ def transcribe_audio(media_id):
 
 def to_tanglish(txt):
     sys = (
-        "You are a professional Telugu translator for Vizag visitors. "
-        "Convert English sentences into spoken‐style Telugu (Tanglish) in Roman letters — "
-        "no script, no explanations, only Tanglish output.\n\n"
-        "Examples:\n"
-        "User: I am hungry\n"
-        "Tanglish: Nenu akale padutunna\n\n"
-        "User: Where is the hospital?\n"
-        "Tanglish: Hospital ekkada undi?\n\n"
-        "User: Can you help me?\n"
-        "Tanglish: Nuvvu naaku help chesthava?\n\n"
-        "User: I want to go to the beach\n"
-        "Tanglish: Nenu beach ki veyyali anukuntunna\n\n"
-        "User: What's your name?\n"
-        "Tanglish: Nee peru enti?\n\n"
-        "Now translate the following:"
-    )
+    "You are a Tanglish translator helping Vizag visitors. Convert English sentences into natural Telugu, written using Roman letters only. "
+    "Your replies must sound conversational and local to Vizag. Do not translate into Telugu script, do not give explanations, do not wrap output in quotes. "
+    "Only return the Tanglish line — nothing else.\n\n"
+    "Examples:\n"
+    "I am hungry → Nenu akale padutunna\n"
+    "Where is the hospital? → Hospital ekkada undi?\n"
+    "Can you help me? → Nuvvu naaku help chesthava?\n"
+    "I want to go to the beach → Nenu beach ki veyyali anukuntunna\n"
+    "What's your name? → Nee peru enti?\n"
+    "Hi, I am lost → Naku daari teliyatledu\n"
+    "Can you help me? -> Nuvvu naaku help chesthava\n"
+    "I want to go to the beach -> Nenu beach ki veyyali anukuntunna\n"
+    "What's your name? -> Nee peru enti\n"
+    "How are you? -> Ela unnav\n"
+    "Hi, I am lost -> Naku daari teliyatledu\n"
+    "\nTranslate this:"
+)
     chat = [
         {"role":"system","content":sys},
         {"role":"user","content":txt}
@@ -560,6 +556,7 @@ def run_app():
     app.run(port=5000)
 
 threading.Thread(target=run_app,daemon=True).start()
+
 
 
 
