@@ -50,8 +50,6 @@ import os
 print("GOOGLE_CRED_PATH=", os.getenv("GOOGLE_CRED_PATH"))
 
 
-
-
 # initialize OpenAI
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
@@ -151,7 +149,6 @@ def send_audio(to, path):
 
     
 
-
 # Google Sheets lookups
 def fetch_contact(sector):
     for row in contact_sheet.get_all_records():
@@ -205,47 +202,6 @@ def get_nearby(lat,lng,cat):
     )
     return out or "No places found nearby."
 
-# audio transcription + Tanglish translator
-# def transcribe_audio(media_id):
-#     try:
-#         print("📥 Getting media URL for:", media_id)
-#         murl = f"https://graph.facebook.com/v18.0/{media_id}"
-#         info = requests.get(murl, params={"access_token": WHATSAPP_TOKEN}).json()
-#         print("🧾 Media Info:", info)
-
-#         url = info.get("url")
-#         if not url:
-#             print("❌ No URL found in media info")
-#             return ""
-
-#         # Get the audio data
-#         headers = {"Authorization": f"Bearer {WHATSAPP_TOKEN}"}
-#         res = requests.get(url, headers=headers, stream=True)
-
-#         if res.status_code != 200:
-#             print(f"❌ Failed to download media: {res.status_code}")
-#             return ""
-
-#         fn = "tmp.ogg"
-#         with open(fn, "wb") as f:
-#             for chunk in res.iter_content(1024):
-#                 f.write(chunk)
-
-#         # Verify file isn't empty or too short
-#         if os.path.getsize(fn) < 1000:
-#             print("❌ Audio file is too small or corrupted.")
-#             return ""
-
-#         print("📂 Audio file saved. Transcribing...")
-#         with open(fn, "rb") as f:
-#             result = openai.Audio.transcribe("whisper-1", f)
-
-#         print("📝 Transcription result:", result)
-#         return result["text"]
-
-#     except Exception as e:
-#         print("❌ Error in transcribe_audio:", e)
-#         return ""
 
 def transcribe_audio(media_id):
     print(f"📥 Getting media URL for: {media_id}")
@@ -300,8 +256,9 @@ def to_tanglish(txt):
     "Can you help me? -> Nuvvu naaku help chesthava\n"
     "I want to go to the beach -> Nenu beach ki veyyali anukuntunna\n"
     "What's your name? -> Nee peru enti\n"
-    "How are you? -> Ela unnav\n"
+    "How are you? -> Ela unnavu\n"
     "Hi, I am lost -> Naku daari teliyatledu\n"
+    "How much will you charge -> Miru enta vasulu cestaru\n"
     "\nTranslate this:"
 )
     chat = [
@@ -312,17 +269,7 @@ def to_tanglish(txt):
     return r.choices[0].message.content.strip()
 
 
-#updated tts code
-# def generate_tts(text, out="resp.ogg"):
-#     # Step 1: Generate MP3 using gTTS
-#     tts = gTTS(text=text, lang="en")
-#     tts.save("temp.mp3")
 
-#     # Step 2: Convert MP3 to OGG (Opus) format
-#     mp3_audio = AudioSegment.from_mp3("temp.mp3")
-#     mp3_audio.export(out, format="ogg", codec="libopus")
-
-#     return out
 
 def generate_tts(text, mp3_path="resp.mp3", ogg_path="resp.ogg"):
     # 1. Save TTS as MP3
@@ -337,37 +284,7 @@ def generate_tts(text, mp3_path="resp.mp3", ogg_path="resp.ogg"):
         return None
     
     return ogg_path
-
-# def generate_tts(text, mp3_path="resp.mp3", ogg_path="resp.ogg"):
-#     # Step 1: Generate MP3 using gTTS
-#     try:
-#         tts = gTTS(text=text, lang="en")
-#         tts.save(mp3_path)
-#     except Exception as e:
-#         print("❌ gTTS failed:", e)
-#         return None
-
-#     # Step 2: Use FFmpeg to convert MP3 → OGG (Opus)
-#     try:
-#         subprocess.run([
-#             "ffmpeg", "-y", "-i", mp3_path,
-#             "-c:a", "libopus",  # Opus codec is required
-#             "-b:a", "64k",       # Audio bitrate
-#             ogg_path
-#         ], check=True)
-#     except subprocess.CalledProcessError as e:
-#         print("❌ FFmpeg conversion failed:", e)
-#         return None
-
-#     # Check if OGG file was successfully created
-#     if not os.path.exists(ogg_path) or os.path.getsize(ogg_path) == 0:
-#         print("❌ Output OGG file is missing or empty.")
-#         return None
-
-#     print("✅ Audio generated successfully.")
-#     return ogg_path
-
-    
+ 
 
 # Flask webhook
 app = Flask(__name__)
@@ -556,6 +473,7 @@ def run_app():
     app.run(port=5000)
 
 threading.Thread(target=run_app,daemon=True).start()
+
 
 
 
