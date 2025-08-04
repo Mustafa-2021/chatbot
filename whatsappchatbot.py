@@ -286,19 +286,30 @@ def to_tanglish(txt):
 
 #     return ogg_path
 
-def generate_tts(text, mp3_path="resp.mp3", ogg_path="resp.ogg"):
-    # 1. Save TTS as MP3
-    tts = gTTS(text=text, lang="en")
-    tts.save(mp3_path)
+def generate_tts(text, mp3_path="resp.mp3", ogg_path="resp.ogg", retries=3, delay=3):
+    for attempt in range(retries):
+        try:
+            print("🔊 Generating TTS (attempt", attempt + 1, ")")
+            tts = gTTS(text=text, lang="en")
+            tts.save(mp3_path)
+            break  # exit the retry loop if successful
+        except Exception as e:
+            print("❌ TTS generation failed:", e)
+            if attempt < retries - 1:
+                print(f"⏳ Retrying in {delay} seconds...")
+                time.sleep(delay)
+            else:
+                return None  # fail silently
 
-    # 2. Convert to OGG using ffmpeg
     try:
         subprocess.run(["ffmpeg", "-y", "-i", mp3_path, "-c:a", "libopus", ogg_path], check=True)
+        print("✅ Audio converted and saved:", ogg_path)
     except subprocess.CalledProcessError as e:
         print("❌ FFmpeg conversion failed:", e)
         return None
-    
+
     return ogg_path
+    
  
 
 # Flask webhook
@@ -488,6 +499,7 @@ def run_app():
     app.run(port=5000)
 
 threading.Thread(target=run_app,daemon=True).start()
+
 
 
 
