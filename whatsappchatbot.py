@@ -15,6 +15,7 @@ from gtts import gTTS
 from dotenv import load_dotenv
 import nest_asyncio
 import uuid
+import time
 
 # allow Flask in Jupyter
 nest_asyncio.apply()
@@ -499,6 +500,7 @@ def run_app():
     app.run(port=5000)
 
 threading.Thread(target=run_app,daemon=True).start()
+
 
 
 
