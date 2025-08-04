@@ -272,17 +272,18 @@ def to_tanglish(txt):
 
 
 def generate_tts(text, mp3_path="resp.mp3", ogg_path="resp.ogg"):
-    # 1. Save TTS as MP3
+    # Step 1: Generate MP3 using gTTS
     tts = gTTS(text=text, lang="en")
     tts.save(mp3_path)
 
-    # 2. Convert to OGG using ffmpeg
+    # Step 2: Convert MP3 to OGG using FFmpeg
     try:
         subprocess.run(["ffmpeg", "-y", "-i", mp3_path, "-c:a", "libopus", ogg_path], check=True)
+        print("✅ Audio converted and saved:", ogg_path)
     except subprocess.CalledProcessError as e:
         print("❌ FFmpeg conversion failed:", e)
         return None
-    
+
     return ogg_path
  
 
@@ -473,6 +474,7 @@ def run_app():
     app.run(port=5000)
 
 threading.Thread(target=run_app,daemon=True).start()
+
 
 
 
