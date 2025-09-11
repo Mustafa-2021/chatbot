@@ -95,10 +95,26 @@ FALLBACK = ("I’m sorry, I can’t help with that. "
 
 # WhatsApp send helpers
 def send_text(to, body):
+    # url = f"https://graph.facebook.com/v18.0/{WHATSAPP_PHONE_ID}/messages"
+    # headers = {"Authorization": f"Bearer {WHATSAPP_TOKEN}", "Content-Type": "application/json"}
+    # data = {"messaging_product":"whatsapp","to":to,"text":{"body":body}}
+    # return requests.post(url, headers=headers, json=data)
+
+    #temp code
     url = f"https://graph.facebook.com/v18.0/{WHATSAPP_PHONE_ID}/messages"
-    headers = {"Authorization": f"Bearer {WHATSAPP_TOKEN}", "Content-Type": "application/json"}
-    data = {"messaging_product":"whatsapp","to":to,"text":{"body":body}}
-    return requests.post(url, headers=headers, json=data)
+    headers = {
+        "Authorization": f"Bearer {WHATSAPP_TOKEN}",
+        "Content-Type": "application/json"
+    }
+    data = {
+        "messaging_product": "whatsapp",
+        "to": to,
+        "text": {"body": body}
+    }
+    r = requests.post(url, headers=headers, json=data)
+    print("📤 WhatsApp API response:", r.status_code, r.text, flush=True)
+    return r
+    #temp code
 
 
 #updated send auido function
@@ -349,6 +365,17 @@ def chatBot():
                         # send_message(from_number, "Hi! I got your message.")
 
         return "EVENT_RECEIVED", 200
+
+
+    if messages:
+    msg = messages[0]
+    from_number = msg["from"]
+    text = msg.get("text", {}).get("body")
+
+    print(f"💬 Got message from {from_number}: {text}", flush=True)
+
+    # ✅ Send reply back
+    send_text(from_number, f"👋 Hi! You said: {text}")
     #tempcde above
 
     
@@ -527,6 +554,7 @@ def run_app():
     app.run(port=5000)
 
 threading.Thread(target=run_app,daemon=True).start()
+
 
 
 
