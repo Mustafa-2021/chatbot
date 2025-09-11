@@ -325,6 +325,33 @@ def chatBot():
             return request.args.get("hub.challenge"), 200
         return "Forbidden", 403
 
+
+    #temp code for response
+    if request.method == "POST":
+        # ✅ Handle incoming WhatsApp messages
+        data = request.get_json()
+        print("📩 Incoming webhook:", data, flush=True)
+
+        # Check if there’s a message
+        if "entry" in data:
+            for entry in data["entry"]:
+                for change in entry.get("changes", []):
+                    value = change.get("value", {})
+                    messages = value.get("messages")
+                    if messages:
+                        msg = messages[0]
+                        from_number = msg["from"]  # sender
+                        text = msg.get("text", {}).get("body")  # message text
+                        
+                        print(f"💬 Got message from {from_number}: {text}", flush=True)
+
+                        # TODO: call your reply function here
+                        # send_message(from_number, "Hi! I got your message.")
+
+        return "EVENT_RECEIVED", 200
+    #tempcde above
+
+    
     data = request.get_json(force=True)
     try:
         msg     = data["entry"][0]["changes"][0]["value"]["messages"][0]
@@ -500,6 +527,7 @@ def run_app():
     app.run(port=5000)
 
 threading.Thread(target=run_app,daemon=True).start()
+
 
 
 
