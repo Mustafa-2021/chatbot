@@ -340,76 +340,7 @@ def chatBot():
         if mode == "subscribe" and token == VERIFY_TOKEN:
             return request.args.get("hub.challenge"), 200
         return "Forbidden", 403
-
-    if request.method == "POST":
-        data = request.get_json()
-        print("📩 Incoming webhook:", data, flush=True)
-
-        try:
-            for entry in data.get("entry", []):
-                for change in entry.get("changes", []):
-                    value = change.get("value", {})
-                    messages = value.get("messages", [])
-
-                    if messages:
-                        msg = messages[0]
-                        from_number = msg["from"]  # sender number
-                        text = msg.get("text", {}).get("body", "")
-
-                        print(f"💬 Got message from {from_number}: {text}", flush=True)
-
-                        # ✅ Send reply back
-                        send_text(from_number, f"👋 Hi! You said: {text}")
-
-            return "EVENT_RECEIVED", 200
-
-        except Exception as e:
-            print("❌ Error handling message:", e, flush=True)
-            return "ERROR", 500
-
-# @app.route("/chatBot", methods=["GET","POST"])
-# def chatBot():
-#     if request.method == "GET":
-#         mode  = request.args.get("hub.mode")
-#         token = request.args.get("hub.verify_token")
-#         if mode == "subscribe" and token == VERIFY_TOKEN:
-#             return request.args.get("hub.challenge"), 200
-#         return "Forbidden", 403
-
-
-
-#     #temp code for response
-#      if request.method == "POST":
-#         data = request.get_json()
-#         print("📩 Incoming webhook:", data, flush=True)
-
-#      try:
-#             for entry in data.get("entry", []):
-#                 for change in entry.get("changes", []):
-#                     value = change.get("value", {})
-#                     messages = value.get("messages", [])
-
-#                     if messages:
-#                         msg = messages[0]
-#                         from_number = msg["from"]  # sender number
-#                         text = msg.get("text", {}).get("body", "")
-
-#                         print(f"💬 Got message from {from_number}: {text}", flush=True)
-
-#                         # ✅ Send reply back
-#                         send_text(from_number, f"👋 Hi! You said: {text}")
-
-#             return "EVENT_RECEIVED", 200
-
-#         except Exception as e:
-#             print("❌ Error handling message:", e, flush=True)
-#             return "ERROR", 500
-
-
-    
-        #tempcde above
-
-    
+        
     data = request.get_json(force=True)
     try:
         msg     = data["entry"][0]["changes"][0]["value"]["messages"][0]
@@ -585,6 +516,7 @@ def run_app():
     app.run(port=5000)
 
 threading.Thread(target=run_app,daemon=True).start()
+
 
 
 
