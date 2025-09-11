@@ -341,41 +341,72 @@ def chatBot():
             return request.args.get("hub.challenge"), 200
         return "Forbidden", 403
 
-
-    #temp code for response
     if request.method == "POST":
-        # ✅ Handle incoming WhatsApp messages
         data = request.get_json()
         print("📩 Incoming webhook:", data, flush=True)
 
-        # Check if there’s a message
-        if "entry" in data:
-            for entry in data["entry"]:
+        try:
+            for entry in data.get("entry", []):
                 for change in entry.get("changes", []):
                     value = change.get("value", {})
-                    messages = value.get("messages")
+                    messages = value.get("messages", [])
+
                     if messages:
                         msg = messages[0]
-                        from_number = msg["from"]  # sender
-                        text = msg.get("text", {}).get("body")  # message text
-                        
+                        from_number = msg["from"]  # sender number
+                        text = msg.get("text", {}).get("body", "")
+
                         print(f"💬 Got message from {from_number}: {text}", flush=True)
 
-                        # TODO: call your reply function here
-                        # send_message(from_number, "Hi! I got your message.")
+                        # ✅ Send reply back
+                        send_text(from_number, f"👋 Hi! You said: {text}")
 
-        return "EVENT_RECEIVED", 200
+            return "EVENT_RECEIVED", 200
+
+        except Exception as e:
+            print("❌ Error handling message:", e, flush=True)
+            return "ERROR", 500
+
+# @app.route("/chatBot", methods=["GET","POST"])
+# def chatBot():
+#     if request.method == "GET":
+#         mode  = request.args.get("hub.mode")
+#         token = request.args.get("hub.verify_token")
+#         if mode == "subscribe" and token == VERIFY_TOKEN:
+#             return request.args.get("hub.challenge"), 200
+#         return "Forbidden", 403
 
 
-        if messages:
-            msg = messages[0]
-            from_number = msg["from"]
-            text = msg.get("text", {}).get("body")
 
-            print(f"💬 Got message from {from_number}: {text}", flush=True)
+#     #temp code for response
+#      if request.method == "POST":
+#         data = request.get_json()
+#         print("📩 Incoming webhook:", data, flush=True)
 
-            # ✅ Send reply back
-            send_text(from_number, f"👋 Hi! You said: {text}")
+#      try:
+#             for entry in data.get("entry", []):
+#                 for change in entry.get("changes", []):
+#                     value = change.get("value", {})
+#                     messages = value.get("messages", [])
+
+#                     if messages:
+#                         msg = messages[0]
+#                         from_number = msg["from"]  # sender number
+#                         text = msg.get("text", {}).get("body", "")
+
+#                         print(f"💬 Got message from {from_number}: {text}", flush=True)
+
+#                         # ✅ Send reply back
+#                         send_text(from_number, f"👋 Hi! You said: {text}")
+
+#             return "EVENT_RECEIVED", 200
+
+#         except Exception as e:
+#             print("❌ Error handling message:", e, flush=True)
+#             return "ERROR", 500
+
+
+    
         #tempcde above
 
     
@@ -554,6 +585,7 @@ def run_app():
     app.run(port=5000)
 
 threading.Thread(target=run_app,daemon=True).start()
+
 
 
 
