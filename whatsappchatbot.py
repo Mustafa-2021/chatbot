@@ -111,9 +111,9 @@ def send_text(to, body):
         "to": to,
         "text": {"body": body}
     }
-    r = requests.post(url, headers=headers, json=data)
-    print("📤 WhatsApp API response:", r.status_code, r.text, flush=True)
-    return r
+    res = requests.post(url, headers=headers, json=data)
+    print("📤 Send response:", res.status_code, res.text)
+    return res
     #temp code
 
 
@@ -554,6 +554,7 @@ def run_app():
     app.run(port=5000)
 
 threading.Thread(target=run_app,daemon=True).start()
+
 
 
 
