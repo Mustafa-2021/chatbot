@@ -367,16 +367,16 @@ def chatBot():
         return "EVENT_RECEIVED", 200
 
 
-    if messages:
-    msg = messages[0]
-    from_number = msg["from"]
-    text = msg.get("text", {}).get("body")
+        if messages:
+            msg = messages[0]
+            from_number = msg["from"]
+            text = msg.get("text", {}).get("body")
 
-    print(f"💬 Got message from {from_number}: {text}", flush=True)
+            print(f"💬 Got message from {from_number}: {text}", flush=True)
 
-    # ✅ Send reply back
-    send_text(from_number, f"👋 Hi! You said: {text}")
-    #tempcde above
+            # ✅ Send reply back
+            send_text(from_number, f"👋 Hi! You said: {text}")
+        #tempcde above
 
     
     data = request.get_json(force=True)
@@ -554,6 +554,7 @@ def run_app():
     app.run(port=5000)
 
 threading.Thread(target=run_app,daemon=True).start()
+
 
 
 
