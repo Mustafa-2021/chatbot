@@ -1,106 +1,86 @@
-from flask import Flask, request
 import requests
-import os
 import json
+from flask import Flask, request
 
 app = Flask(__name__)
 
-# Your WhatsApp API credentials
 ACCESS_TOKEN = os.getenv("WHATSAPP_TOKEN")
 PHONE_NUMBER_ID = os.getenv("WHATSAPP_PHONE_ID")
-
-VERIFY_TOKEN = os.getenv("VERIFY_TOKEN")
-
-# --- Helper Function to Send Messages ---
-def send_whatsapp_message(to, message):
-    url = f"https://graph.facebook.com/v17.0/{PHONE_NUMBER_ID}/messages"
-    headers = {
-        "Authorization": f"Bearer {ACCESS_TOKEN}",
-        "Content-Type": "application/json"
-    }
-    payload = {
-        "messaging_product": "whatsapp",
-        "to": to,
-        "type": "text",
-        "text": {"body": message}
-    }
-    requests.post(url, headers=headers, data=json.dumps(payload))
-
-
-@app.route("/chatBot", methods=["GET"])
-def verify():
-    if request.args.get("hub.verify_token") == VERIFY_TOKEN:
-        return request.args.get("hub.challenge")
-    return "Invalid verification token"
-
 
 @app.route("/chatBot", methods=["POST"])
 def webhook():
     data = request.get_json()
 
-    try:
-        entry = data["entry"][0]["changes"][0]["value"]
-        messages = entry.get("messages")
+    if "messages" in data["entry"][0]["changes"][0]["value"]:
+        message = data["entry"][0]["changes"][0]["value"]["messages"][0]
+        sender = message["from"]
 
-        if messages:
-            phone_number = messages[0]["from"]
-            user_message = messages[0]["text"]["body"].strip().lower()
+        if message.get("text", {}).get("body", "").lower() in ["hi", "hello"]:
+            send_interactive_message(sender)
 
-            # --- Menu Logic ---
-            if user_message in ["hi", "hello", "menu", "start"]:
-                send_whatsapp_message(
-                    phone_number,
-                    "👋 Hello! Welcome to the *Smart Road Maintenance Assistant*.\n\n"
-                    "Please select one of the options below:\n"
-                    "1️⃣ Register an issue\n"
-                    "2️⃣ Report a pothole\n"
-                    "3️⃣ Track your complaint\n"
-                    "4️⃣ About this service"
-                )
+        elif message.get("button"):
+            button_text = message["button"]["text"]
+            handle_button_click(sender, button_text)
 
-            elif user_message == "1" or "register" in user_message:
-                send_whatsapp_message(
-                    phone_number,
-                    "📝 To register an issue, please click the link below:\n"
-                    "👉 https://smartroads.ap.gov/register?user=" + phone_number
-                )
+    return "ok", 200
 
-            elif user_message == "2" or "pothole" in user_message:
-                send_whatsapp_message(
-                    phone_number,
-                    "📸 To report a pothole, please visit:\n"
-                    "👉 https://smartroads.ap.gov/report?user=" + phone_number
-                )
 
-            elif user_message == "3" or "track" in user_message:
-                send_whatsapp_message(
-                    phone_number,
-                    "🔍 Track your complaint status here:\n"
-                    "👉 https://smartroads.ap.gov/track?user=" + phone_number
-                )
+def send_interactive_message(recipient):
+    """Send buttons for user selection."""
+    url = f"https://graph.facebook.com/v21.0/{PHONE_NUMBER_ID}/messages"
+    headers = {
+        "Authorization": f"Bearer {ACCESS_TOKEN}",
+        "Content-Type": "application/json"
+    }
 
-            elif user_message == "4" or "about" in user_message:
-                send_whatsapp_message(
-                    phone_number,
-                    "ℹ️ This service helps citizens report potholes and road issues directly "
-                    "to the concerned authorities for faster response. Together, we can make AP pothole-free!"
-                )
+    payload = {
+        "messaging_product": "whatsapp",
+        "to": recipient,
+        "type": "interactive",
+        "interactive": {
+            "type": "button",
+            "body": {"text": "Thanks for contacting Smart Road Assist.\nPlease choose an option below:"},
+            "action": {
+                "buttons": [
+                    {"type": "reply", "reply": {"id": "report_pothole", "title": "🕳️ Report Pothole"}},
+                    {"type": "reply", "reply": {"id": "register_complaint", "title": "📝 Register Complaint"}},
+                    {"type": "reply", "reply": {"id": "check_status", "title": "📊 Check Status"}}
+                ]
+            }
+        }
+    }
 
-            else:
-                send_whatsapp_message(
-                    phone_number,
-                    "🤖 Sorry, I didn’t understand that.\n"
-                    "Type *menu* to see available options."
-                )
+    requests.post(url, headers=headers, json=payload)
 
-    except Exception as e:
-        print("Error:", e)
 
-    return "OK", 200
+def handle_button_click(recipient, button_text):
+    """Handle user selection."""
+    url = f"https://graph.facebook.com/v21.0/{PHONE_NUMBER_ID}/messages"
+    headers = {
+        "Authorization": f"Bearer {ACCESS_TOKEN}",
+        "Content-Type": "application/json"
+    }
+
+    if "Report" in button_text:
+        msg = "Please report potholes using: https://smartroads.gov/report"
+    elif "Register" in button_text:
+        msg = "You can register complaints here: https://smartroads.gov/complaints"
+    elif "Status" in button_text:
+        msg = "Track your issue here: https://smartroads.gov/status"
+    else:
+        msg = "Please select a valid option."
+
+    payload = {
+        "messaging_product": "whatsapp",
+        "to": recipient,
+        "type": "text",
+        "text": {"body": msg}
+    }
+
+    requests.post(url, headers=headers, json=payload)
 
 
 if __name__ == "__main__":
-    app.run(port=5000, debug=True)
-
+    app.run(port=5000)
 
 
