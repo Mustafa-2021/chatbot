@@ -84,7 +84,6 @@
 # if __name__ == "__main__":
 #     app.run(port=5000)
 
-
 import os
 import requests
 from flask import Flask, request
@@ -98,10 +97,12 @@ PHONE_NUMBER_ID = os.getenv("WHATSAPP_PHONE_ID")
 def webhook():
     data = request.get_json()
 
+    # Verify that a message exists in the webhook payload
     if "messages" in data["entry"][0]["changes"][0]["value"]:
         message = data["entry"][0]["changes"][0]["value"]["messages"][0]
-        sender = message["from"]  # WhatsApp phone number (with country code)
+        sender = message["from"]  # WhatsApp phone number of sender
 
+        # If user says hi or hello, send interactive message
         if message.get("text", {}).get("body", "").lower() in ["hi", "hello"]:
             send_interactive_message(sender)
 
@@ -109,16 +110,16 @@ def webhook():
 
 
 def send_interactive_message(recipient):
-    """Send URL buttons that include user-specific tracking in the query."""
+    """Send interactive message with CTA URL buttons for web redirection."""
     url = f"https://graph.facebook.com/v21.0/{PHONE_NUMBER_ID}/messages"
     headers = {
         "Authorization": f"Bearer {ACCESS_TOKEN}",
         "Content-Type": "application/json"
     }
 
-    # Encode WhatsApp number as query param
-    base_report_url = f"https://smartroads.gov/demo/report?user={recipient}"
-    base_complaints_url = f"https://smartroads.gov/demo/complaints?user={recipient}"
+    # Dynamic user URLs
+    report_url = f"https://smartroads.gov/demo/report?user={recipient}"
+    complaints_url = f"https://smartroads.gov/demo/complaints?user={recipient}"
 
     payload = {
         "messaging_product": "whatsapp",
@@ -132,14 +133,14 @@ def send_interactive_message(recipient):
             "action": {
                 "buttons": [
                     {
-                        "type": "url",
-                        "url": base_report_url,
-                        "title": "🕳️ Report a Pothole"
+                        "type": "cta_url",
+                        "text": "🕳️ Report a Pothole",
+                        "url": report_url
                     },
                     {
-                        "type": "url",
-                        "url": base_complaints_url,
-                        "title": "🧾 Number of Complaints"
+                        "type": "cta_url",
+                        "text": "🧾 Number of Complaints",
+                        "url": complaints_url
                     }
                 ]
             }
@@ -147,12 +148,12 @@ def send_interactive_message(recipient):
     }
 
     response = requests.post(url, headers=headers, json=payload)
+
     if response.status_code != 200:
         print("Error sending message:", response.text)
+    else:
+        print("✅ Message sent successfully!")
 
 
 if __name__ == "__main__":
     app.run(port=5000)
-
-
-
