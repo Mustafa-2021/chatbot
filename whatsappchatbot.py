@@ -83,7 +83,6 @@
 
 # if __name__ == "__main__":
 #     app.run(port=5000)
-
 import os
 import requests
 from flask import Flask, request
@@ -96,64 +95,47 @@ PHONE_NUMBER_ID = os.getenv("WHATSAPP_PHONE_ID")
 @app.route("/chatBot", methods=["POST"])
 def webhook():
     data = request.get_json()
-
-    # Verify that a message exists in the webhook payload
     if "messages" in data["entry"][0]["changes"][0]["value"]:
         message = data["entry"][0]["changes"][0]["value"]["messages"][0]
-        sender = message["from"]  # WhatsApp phone number of sender
-
-        # If user says hi or hello, send interactive message
+        sender = message["from"]
         if message.get("text", {}).get("body", "").lower() in ["hi", "hello"]:
-            send_interactive_message(sender)
-
+            send_report_button(sender)
     return "ok", 200
 
-
-def send_interactive_message(recipient):
-    """Send interactive message with CTA URL buttons for web redirection."""
+def send_report_button(recipient):
+    """Send one CTA URL button to redirect user to report page."""
     url = f"https://graph.facebook.com/v21.0/{PHONE_NUMBER_ID}/messages"
     headers = {
         "Authorization": f"Bearer {ACCESS_TOKEN}",
         "Content-Type": "application/json"
     }
 
-    # Dynamic user URLs
     report_url = f"https://smartroads.gov/demo/report?user={recipient}"
-    complaints_url = f"https://smartroads.gov/demo/complaints?user={recipient}"
 
     payload = {
         "messaging_product": "whatsapp",
         "to": recipient,
         "type": "interactive",
         "interactive": {
-            "type": "button",
+            "type": "cta_url",
             "body": {
-                "text": "👋 Welcome to Smart Road Assist!\nPlease choose an option below:"
+                "text": "👋 Welcome to Smart Road Assist!\nClick the button below to report a pothole."
             },
             "action": {
-                "buttons": [
-                    {
-                        "type": "cta_url",
-                        "text": "🕳️ Report a Pothole",
-                        "url": report_url
-                    },
-                    {
-                        "type": "cta_url",
-                        "text": "🧾 Number of Complaints",
-                        "url": complaints_url
-                    }
-                ]
+                "name": "cta_url",
+                "parameters": {
+                    "display_text": "🕳️ Report a Pothole",
+                    "url": report_url
+                }
             }
         }
     }
 
     response = requests.post(url, headers=headers, json=payload)
-
     if response.status_code != 200:
         print("Error sending message:", response.text)
     else:
         print("✅ Message sent successfully!")
-
 
 if __name__ == "__main__":
     app.run(port=5000)
