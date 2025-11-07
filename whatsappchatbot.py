@@ -110,7 +110,7 @@ def send_report_button(recipient):
         "Content-Type": "application/json"
     }
 
-    report_url = f"https://smartroads.gov/demo/report?user={recipient}"
+    report_url = f"http://reporting-portal-delta.vercel.app?user={recipient}"
 
     payload = {
         "messaging_product": "whatsapp",
@@ -124,7 +124,14 @@ def send_report_button(recipient):
             "action": {
                 "name": "cta_url",
                 "parameters": {
-                    "display_text": "🕳️ Report a Pothole",
+                    "display_text": "Report a Pothole",
+                    "url": report_url
+                }
+            }
+            "action": {
+                "name": "cta_url",
+                "parameters": {
+                    "display_text": "View complaints",
                     "url": report_url
                 }
             }
@@ -139,3 +146,4 @@ def send_report_button(recipient):
 
 if __name__ == "__main__":
     app.run(port=5000)
+
