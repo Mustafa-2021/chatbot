@@ -127,7 +127,7 @@ def send_report_button(recipient):
                     "display_text": "Report a Pothole",
                     "url": report_url
                 }
-            }
+            },
             "action": {
                 "name": "cta_url",
                 "parameters": {
@@ -146,4 +146,5 @@ def send_report_button(recipient):
 
 if __name__ == "__main__":
     app.run(port=5000)
+
 
