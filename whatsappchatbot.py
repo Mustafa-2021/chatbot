@@ -110,7 +110,7 @@ def send_report_button(recipient):
         "Content-Type": "application/json"
     }
 
-    report_url = f"http://reporting-portal-delta.vercel.app?user={recipient}"
+    report_url = f"https://pothole-reporting-portal-922876587313.asia-south1.run.app/?user={recipient}"
 
     payload = {
         "messaging_product": "whatsapp",
@@ -139,6 +139,7 @@ def send_report_button(recipient):
 
 if __name__ == "__main__":
     app.run(port=5000)
+
 
 
 
