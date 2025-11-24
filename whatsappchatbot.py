@@ -98,7 +98,7 @@ def webhook():
     if "messages" in data["entry"][0]["changes"][0]["value"]:
         message = data["entry"][0]["changes"][0]["value"]["messages"][0]
         sender = message["from"]
-        if message.get("text", {}).get("body", "").lower() in ["hi", "hello"]:
+        if message.get("type") == "text":
             send_report_button(sender)
     return "ok", 200
 
@@ -139,6 +139,7 @@ def send_report_button(recipient):
 
 if __name__ == "__main__":
     app.run(port=5000)
+
 
 
 
